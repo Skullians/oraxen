@@ -32,4 +32,6 @@ jobs:
           name: Oraxen+${{ github.run_number }}
           path: |
             target/*.jar
+            build/libs/*.jar
+            !build/libs/original-*.jar
             !target/original-*.jar
