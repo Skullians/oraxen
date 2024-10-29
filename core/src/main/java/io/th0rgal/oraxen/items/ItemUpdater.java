@@ -182,8 +182,13 @@ public class ItemUpdater implements Listener {
             itemMeta.setCustomModelData(cmd);
 
             // If OraxenItem has no lore, we should assume that 3rd-party plugin has added lore
-            if (Settings.OVERRIDE_ITEM_LORE.toBool()) itemMeta.setLore(newMeta.getLore());
-            else itemMeta.setLore(oldMeta.getLore());
+            if (Settings.OVERRIDE_ITEM_LORE.toBool()) {
+                if (VersionUtil.isPaperServer()) itemMeta.lore(newMeta.lore());
+                else itemMeta.setLore(newMeta.getLore());
+            } else {
+                if (VersionUtil.isPaperServer()) itemMeta.lore(oldMeta.lore());
+                else itemMeta.setLore(oldMeta.getLore());
+            }
 
             // Only change AttributeModifiers if the new item has some
             if (newMeta.hasAttributeModifiers()) itemMeta.setAttributeModifiers(newMeta.getAttributeModifiers());
@@ -244,7 +249,6 @@ public class ItemUpdater implements Listener {
             }
 
             // On 1.20.5+ we use ItemName which is different from userchanged displaynames
-            // Thus removing the need for this logic
             if (!VersionUtil.atOrAbove("1.20.5")) {
 
                 String oldDisplayName = oldMeta.hasDisplayName() ? AdventureUtils.parseLegacy(VersionUtil.isPaperServer() ? AdventureUtils.MINI_MESSAGE.serialize(oldMeta.displayName()) : AdventureUtils.parseLegacy(oldMeta.getDisplayName())) : null;
@@ -266,6 +270,14 @@ public class ItemUpdater implements Listener {
                         : newMeta.getDisplayName()
                         : null;
                 if (originalName != null) itemPdc.set(ORIGINAL_NAME_KEY, DataType.STRING, originalName);
+            } else { // Set the displayName/customName if it exists on an item before
+                if (newMeta.hasDisplayName() && !newMeta.getDisplayName().isEmpty()) {
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMeta.displayName());
+                    else itemMeta.setDisplayName(newMeta.getDisplayName());
+                } else {
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(oldMeta.displayName());
+                    else itemMeta.setDisplayName(oldMeta.getDisplayName());
+                }
             }
 
 
